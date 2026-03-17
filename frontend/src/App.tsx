@@ -1,11 +1,43 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
+import { supabase } from './lib/supabase'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [orders, setOrders] = useState<unknown[] | null>(null)
+  const [ordersError, setOrdersError] = useState<string | null>(null)
+  const [ordersLoading, setOrdersLoading] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function run() {
+      setOrdersLoading(true)
+      setOrdersError(null)
+
+      const { data, error } = await supabase.from('orders').select('*')
+
+      if (cancelled) return
+
+      if (error) {
+        setOrders(null)
+        setOrdersError(error.message)
+      } else {
+        setOrders(data ?? [])
+      }
+
+      setOrdersLoading(false)
+    }
+
+    void run()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   return (
     <>
@@ -22,6 +54,17 @@ function App() {
           <p>
             Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
           </p>
+          <div style={{ marginTop: 16 }}>
+            {ordersLoading ? (
+              <p>Loading orders…</p>
+            ) : ordersError ? (
+              <p style={{ color: 'crimson' }}>Orders error: {ordersError}</p>
+            ) : (
+              <pre style={{ textAlign: 'left', overflowX: 'auto' }}>
+                {JSON.stringify(orders, null, 2)}
+              </pre>
+            )}
+          </div>
         </div>
         <button
           className="counter"
