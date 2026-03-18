@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { FileUploader } from '../components/FileUploader'
 
 const TechnicianDashboard = () => {
   const [orderId, setOrderId] = useState('')
@@ -69,6 +70,11 @@ const TechnicianDashboard = () => {
           Upload File
         </button>
       </form>
+
+      <div className="mt-6 max-w-md">
+        <h2 className="text-lg font-medium mb-2">Upload (component)</h2>
+        <FileUploader orderId={orderId || 'ORDER1234'} />
+      </div>
 
       {status && <p className="mt-3 text-sm">{status}</p>}
     </div>
