@@ -8,6 +8,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.get("/", (req, res) => {
+  res.send("Backend is working");
+});
+
 // --- Mock AI endpoint ---
 app.post("/ask-ai", (req, res) => {
   const { question, data } = req.body;

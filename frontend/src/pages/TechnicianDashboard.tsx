@@ -249,7 +249,7 @@ const TechnicianDashboard = () => {
       }
 
       // Save completion into orders
-      const completionPayload = {
+      const completionPayload: Record<string, unknown> = {
         status: 'Job Done',
         completed_at: completedAt,
         work_done: workDone.trim(),
@@ -257,10 +257,12 @@ const TechnicianDashboard = () => {
         final_amount: computedFinal,
         remarks: remarks.trim() || null,
         completion_file_urls: uploaded.urls,
-        technician_name: technicianName.trim(),
-        payment_amount: recordPayment ? Number(paymentAmount) : null,
-        payment_method: recordPayment ? paymentMethod : null,
-        payment_receipt_url: recordPayment ? receiptUrl : null,
+      }
+
+      if (recordPayment) {
+        completionPayload.payment_amount = Number(paymentAmount)
+        completionPayload.payment_method = paymentMethod
+        completionPayload.payment_receipt_url = receiptUrl
       }
 
       const { error: updateError } = await supabase
