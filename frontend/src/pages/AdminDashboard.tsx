@@ -124,8 +124,7 @@ const AdminDashboard = () => {
       problem_description: form.problemDescription.trim(),
       service_type: form.serviceType,
       quoted_price: form.quotedPrice ? Number(form.quotedPrice) : null,
-      assigned_technician_id: form.assignedTechnician?.id ?? null,
-      assigned_technician_name: form.assignedTechnician?.name ?? null,
+      assigned_technician: form.assignedTechnician?.name ?? null,
       admin_notes: form.adminNotes.trim() || null,
     }
 
