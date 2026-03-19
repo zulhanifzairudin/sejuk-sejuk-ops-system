@@ -140,7 +140,7 @@ const AdminDashboard = () => {
     setCreatedOrder(inserted)
     setLoading(false)
 
-    //optional : WhatsApp notify technician (if phone exists)
+    //WhatsApp notify technician (if phone exists)
     const techPhone = form.assignedTechnician?.phone?.replace(/\D/g, '') ?? ''
     if (techPhone) {
       sendWhatsApp(techPhone, `Job ${form.orderNo} assigned to you`)

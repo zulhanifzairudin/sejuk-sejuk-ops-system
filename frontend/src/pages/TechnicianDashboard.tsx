@@ -12,8 +12,6 @@ import { sendWhatsApp } from '../utils/helpers'
 
 /**
  * Technician Portal (Service Job)
- * IMPORTANT: align field/column names with your Supabase schema.
- * This UI assumes `orders` has at least: `order_no`, `assigned_technician`, `phone`, `quoted_price`.
  */
 
 type Order = {
@@ -59,14 +57,14 @@ const TechnicianDashboard = () => {
   const [savingCompletion, setSavingCompletion] = useState(false)
   const [completionError, setCompletionError] = useState<string | null>(null)
 
-  // Completion form state
+  // completion form state
   const [workDone, setWorkDone] = useState('')
   const [extraCharges, setExtraCharges] = useState('0')
   const [remarks, setRemarks] = useState('')
   const [uploads, setUploads] = useState<File[]>([])
   const [uploadError, setUploadError] = useState<string | null>(null)
 
-  // Optional payment recording
+  // payment recording
   const [recordPayment, setRecordPayment] = useState(false)
   const [paymentAmount, setPaymentAmount] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'Card' | 'Bank Transfer'>(
@@ -135,14 +133,14 @@ const TechnicianDashboard = () => {
   }
 
   useEffect(() => {
-    // keep in sync for better UX; only auto-load when name exists
+    // keep in sync for better UX (only auto-load when name exists)
     if (technicianName.trim()) {
       void loadAssignedJobs(technicianName)
     } else {
       setAssignedJobs([])
       setJobsError(null)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks
   }, [technicianName])
 
   const openCompletionForOrder = (order: Order) => {
@@ -233,7 +231,7 @@ const TechnicianDashboard = () => {
       // Upload completion files
       const uploaded = await uploadFilesAndGetUrls(orderNo, uploads)
 
-      // Upload receipt photo (optional)
+      // Upload receipt photo 
       let receiptUrl: string | null = null
       let receiptPath: string | null = null
       if (recordPayment && receiptPhoto) {
@@ -280,15 +278,12 @@ const TechnicianDashboard = () => {
           if (receiptUrl) console.log('Receipt uploaded:', { receiptUrl, receiptPath })
           sendWhatsApp(
             phone,
-            `Hi ${selectedOrder.customer_name ?? ''}! Your job ${orderNo} is completed. Final amount: RM ${computedFinal.toFixed(
-              2,
-            )}. Thank you!`,
+            `Hi ${selectedOrder.customer_name ?? ''}, Job ${orderNo} has been completed by Technician ${technicianName.trim()} at ${completedAt}. Please check and leave feedback. Thank you!`,
           )
         }
       }
 
       // Notify manager/accounts (best-effort log)
-      // If you add a real notifications table later, replace this section.
       try {
         await supabase
           .from('orders')
