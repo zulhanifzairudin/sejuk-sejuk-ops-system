@@ -1,13 +1,19 @@
 import { Listbox } from '@headlessui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { sendWhatsApp } from '../utils/helpers'
 
 type TechnicianOption = {
-  id: string
   name: string
   phone?: string | null
 }
+
+const technicianOptions: TechnicianOption[] = [
+  { name: 'Ali', phone: '60123450001' },
+  { name: 'John', phone: '60123450002' },
+  { name: 'Bala', phone: '60123450003' },
+  { name: 'Yusoff', phone: '60123450004' },
+]
 
 const serviceTypes = [
   'Maintenance',
@@ -40,9 +46,6 @@ const AdminDashboard = () => {
     null,
   )
 
-  const [technicians, setTechnicians] = useState<TechnicianOption[]>([])
-  const [techniciansLoading, setTechniciansLoading] = useState(false)
-
   const [form, setForm] = useState<CreateOrderInput>(() => ({
     orderNo: generateOrderNo(),
     customerName: '',
@@ -65,36 +68,6 @@ const AdminDashboard = () => {
       !loading
     )
   }, [form, loading])
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function loadTechnicians() {
-      setTechniciansLoading(true)
-      const { data, error } = await supabase
-        .from('technicians')
-        .select('id,name,phone')
-        .order('name')
-
-      if (cancelled) return
-
-      if (!error && data) {
-        setTechnicians(
-          (data as Array<{ id: string; name: string; phone?: string | null }>).map(
-            (t) => ({ id: t.id, name: t.name, phone: t.phone }),
-          ),
-        )
-      }
-
-      setTechniciansLoading(false)
-    }
-
-    void loadTechnicians()
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   const resetForm = () => {
     setForm({
@@ -126,6 +99,7 @@ const AdminDashboard = () => {
       quoted_price: form.quotedPrice ? Number(form.quotedPrice) : null,
       assigned_technician: form.assignedTechnician?.name ?? null,
       admin_notes: form.adminNotes.trim() || null,
+      status: 'Assigned',
     }
 
     const { data, error } = await supabase.from('orders').insert(payload).select('*')
@@ -287,12 +261,7 @@ const AdminDashboard = () => {
                   >
                     <div className="relative">
                       <Listbox.Button className="w-full border rounded-lg px-3 py-2 text-left bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        {form.assignedTechnician?.name ??
-                          (techniciansLoading
-                            ? 'Loading technicians…'
-                            : technicians.length
-                              ? 'Select technician'
-                              : 'No technicians table (optional)')}
+                        {form.assignedTechnician?.name ?? 'Select technician'}
                       </Listbox.Button>
                       <Listbox.Options className="absolute z-10 mt-1 w-full rounded-lg border bg-white shadow-sm max-h-60 overflow-auto">
                         <Listbox.Option
@@ -301,9 +270,8 @@ const AdminDashboard = () => {
                         >
                           Unassigned
                         </Listbox.Option>
-                        {technicians.map((t) => (
+                        {technicianOptions.map((t) => (
                           <Listbox.Option
-                            key={t.id}
                             value={t}
                             className="cursor-pointer px-3 py-2 text-sm ui-active:bg-blue-50 ui-selected:font-medium"
                           >
